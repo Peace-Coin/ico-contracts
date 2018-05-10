@@ -1,8 +1,9 @@
-pragma solidity ^0.4.21;
+pragma solidity ^0.4.23;
 
-import "./Crowdsale.sol";
-import "./MintableToken.sol";
-import "./PeaceCoinCrowdsaleToken.sol";
+import "zeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol";
+import "zeppelin-solidity/contracts/crowdsale/distribution/RefundableCrowdsale.sol";
+import "zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol";
+import "zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
 
 
 /**
@@ -16,30 +17,25 @@ import "./PeaceCoinCrowdsaleToken.sol";
  * After adding multiple features it's good practice to run integration tests
  * to ensure that subcontracts works together as intended.
  */
-contract PeaceCoinCrowdsale is Crowdsale {
+contract PeaceCoinCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
 
-    string message;
-
-    function PeaceCoinCrowdsale(
-        uint256 _rate,
-        address _wallet,
-        MintableToken _token
-    )
-        public    
-        Crowdsale(_rate, _wallet, _token)
-    {
-        //As goal needs to be met for a successful crowdsale
-        //the value needs to less or equal than a cap which is limit for accepted funds
-        //require(_goal <= _cap);
-        message = "test";
-    }
-
-    function setGreetings(string _message) public {
-        message = _message;
-    }
-
-    function getGreetings() public view returns (string) {
-        return message;
-    }
-
+  function PeaceCoinCrowdsale(
+    uint256 _openingTime,
+    uint256 _closingTime,
+    uint256 _rate,
+    address _wallet,
+    uint256 _cap,
+    MintableToken _token,
+    uint256 _goal
+  )
+    public
+    Crowdsale(_rate, _wallet, _token)
+    CappedCrowdsale(_cap)
+    TimedCrowdsale(_openingTime, _closingTime)
+    RefundableCrowdsale(_goal)
+  {
+    //As goal needs to be met for a successful crowdsale
+    //the value needs to less or equal than a cap which is limit for accepted funds
+    require(_goal <= _cap);
+  }
 }
