@@ -1,8 +1,6 @@
-const ether = './helpers/ether';
-
 var PeaceCoinCrowdsaleToken = artifacts.require('PeaceCoinCrowdsaleToken.sol');
 var PeaceCoinCrowdsale = artifacts.require('PeaceCoinCrowdsale.sol');
-var RefundVault = artifacts.require('RefundVault.sol');
+var PeaceCoinSavingsWallet = artifacts.require('PeaceCoinSavingsWallet.sol');
 
 module.exports = function(deployer, network, accounts) {
   //    return DeployTestCrowdSale(deployer, accounts);
@@ -11,6 +9,10 @@ module.exports = function(deployer, network, accounts) {
 
 function latestTime() {
   return web3.eth.getBlock('latest').timestamp;
+}
+
+function ether(n) {
+  return new web3.BigNumber(web3.toWei(n, 'ether'));
 }
 
 const duration = {
@@ -36,60 +38,43 @@ const duration = {
 
 async function liveDeploy(deployer, accounts) {
   const BigNumber = web3.BigNumber;
-  //const openingTime = latestTime() + duration.weeks(1);
-  const openingTime = 1524698624;
-  const closingTime = openingTime + duration.weeks(1);
-  const rate = new BigNumber(1); // 1: 1eth = 1Token
-  const wallet = accounts[0];
-  const cap = 30000000000000000000;
-  const goal = 20000000000000000000;
+  const openingTime = latestTime() + duration.minutes(30);
+  const closingTime = openingTime + duration.years(1);
+  const RATE = new BigNumber(1); // 1: 1eth = 1Token
+  const CAP = ether(5);
+  const GOAL = ether(3);
 
-  // deployer.deploy(
-  //     PeaceCoinCrowdsaleToken).then( async() => {
-  //         const instance = await PeaceCoinCrowdsaleToken.deployed();
-  //     });
+  const heartbeatTimeout = 3153600000000; // 1000 Year
 
-  // const token = PeaceCoinCrowdsaleToken.address;
-  // console.log([openingTime, closingTime, rate.toNumber(), accounts[0]]);
-
-  // return deployer.deploy(PeaceCoinCrowdsale,
-  //     rate, wallet, token).then( async() => {
-  //         const crowdsale_instance = await PeaceCoinCrowdsale.deployed();
-  //     });
-
-  // console.log([
-  //   openingTime,
-  //   closingTime,
-  //   rate.toNumber(),
-  //   wallet,
-  //   cap,
-  //   token,
-  //   goal
-  // ]);
-
-  let token;
-  let refundVault;
+  let tokenAddress;
+  let walletAddress;
+  let crowdsaleAddress;
 
   await deployer.deploy(PeaceCoinCrowdsaleToken).then(function() {
-    token = PeaceCoinCrowdsaleToken.address;
-    console.log(token);
+    tokenAddress = PeaceCoinCrowdsaleToken.address;
+    console.log(tokenAddress);
   });
 
-  await deployer.deploy(RefundVault, wallet).then(function() {
-    refundVault = RefundVault.address;
-    console.log(refundVault, wallet);
-  });
+  await deployer
+    .deploy(PeaceCoinSavingsWallet, heartbeatTimeout)
+    .then(function() {
+      walletAddress = PeaceCoinSavingsWallet.address;
+      console.log(walletAddress);
+    });
 
-  // deployer.deploy(
-  //   PeaceCoinCrowdsale,
-  //   openingTime,
-  //   closingTime,
-  //   rate.toNumber(),
-  //   wallet,
-  //   cap,
-  //   token,
-  //   goal
-  // );
-
-  return;
+  await deployer
+    .deploy(
+      PeaceCoinCrowdsale,
+      openingTime,
+      closingTime,
+      RATE.toNumber(),
+      walletAddress,
+      CAP.toNumber(),
+      tokenAddress,
+      GOAL.toNumber()
+    )
+    .then(function() {
+      crowdsaleAddress = PeaceCoinCrowdsale.address;
+      console.log(crowdsaleAddress);
+    });
 }
