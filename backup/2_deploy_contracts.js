@@ -47,34 +47,28 @@ async function liveDeploy(deployer, accounts) {
 
   const heartbeatTimeout = 3153600000000; // 1000 Year
 
-  let token;
-  let wallet;
-  let crowdsale;
-  let vault;
+  let tokenAddress;
+  let walletAddress;
+  let crowdsaleAddress;
 
-  await deployer
-    .deploy(PeaceCoinCrowdsaleToken)
-    .then(function() {
-      token = PeaceCoinCrowdsaleToken;
-    });
-
-  console.log('token address: ', token.address);
+  await deployer.deploy(PeaceCoinCrowdsaleToken).then(function() {
+    tokenAddress = PeaceCoinCrowdsaleToken.address;
+    console.log(tokenAddress);
+  });
 
   await deployer
     .deploy(PeaceCoinSavingsWallet, heartbeatTimeout)
-    .then(function () {
-      wallet = PeaceCoinSavingsWallet;
+    .then(function() {
+      walletAddress = PeaceCoinSavingsWallet.address;
+      console.log(walletAddress);
     });
-
-  console.log("wallet address: ", wallet.address);
 
   await deployer
-    .deploy(RefundVault, wallet.address)
-    .then(function() {
-      vault = RefundVault;
+    .deploy(RefundVault, walletAddress)
+    .then(function () {
+      walletAddress = walletAddress.address;
+      console.log(walletAddress);
     });
-
-  console.log(vault.address);
 
   await deployer
     .deploy(
@@ -82,32 +76,17 @@ async function liveDeploy(deployer, accounts) {
       openingTime,
       closingTime,
       RATE.toNumber(),
-      wallet.address,
+      walletAddress,
       CAP.toNumber(),
-      token.address,
+      tokenAddress,
       GOAL.toNumber()
     )
-    .then(function() {
-      crowdsale = PeaceCoinCrowdsale;
-
-
+    .then(function(instance) {
+      crowdsaleAddress = PeaceCoinCrowdsale.address;
+      console.log(crowdsaleAddress);
     });
-
-  console.log(crowdsale.address);
-
-  // Transfer Ownership from owner address to crowdsale address
-  await deployer
-    .then(function() {
-      token
-        .deployed()
-        .then(instance => instance.transferOwnership(crowdsale.address));
-  }) 
-
-  await deployer
-    .then(function () {
-      vault
-        .deployed()
-        .then(instance => instance.transferOwnership(crowdsale.address));
-    }) 
-
 }
+
+// Transfer Ownership from owner address to crowdsale address
+// await this.token.transferOwnership(this.crowdsale.address);
+// await this.vault.transferOwnership(this.crowdsale.address);
