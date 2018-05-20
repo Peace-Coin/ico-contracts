@@ -1,6 +1,5 @@
 # Dependencies
 /node_modules
-/build
 
 # Hidden Files
 .DS_Store
