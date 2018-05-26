@@ -4,12 +4,14 @@ import "zeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol";
 import "zeppelin-solidity/contracts/crowdsale/distribution/RefundableCrowdsale.sol";
 import "zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol";
 import "zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
+import "zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
+import "zeppelin-solidity/contracts/crowdsale/price/IncreasingPriceCrowdsale.sol";
 
 
 /**
  * @title PeaceCoinCrowdsale powered by Zeppelin@1.9.0
  */
-contract PeaceCoinCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale {
+contract PeaceCoinCrowdsale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale, IncreasingPriceCrowdsale {
 
   function PeaceCoinCrowdsale(
     uint256 _openingTime,
