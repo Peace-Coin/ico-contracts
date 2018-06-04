@@ -4,8 +4,8 @@ import "zeppelin-solidity/contracts/token/ERC20/MintableToken.sol";
 
 
 /**
- * @title PeaceCoinCrowdsaleToken
- * @dev Very simple ERC20 Token that can be minted.
+ * @title Peace Coin Crowdsale Token
+ * @dev Peace Coin ERC20 Token that can be minted.
  * It is meant to be used in a crowdsale contract.
  */
 contract PeaceCoinCrowdsaleToken is MintableToken {

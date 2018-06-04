@@ -1,7 +1,7 @@
 var PeaceCoinCrowdsaleToken = artifacts.require('PeaceCoinCrowdsaleToken.sol');
 var PeaceCoinCrowdsale = artifacts.require('PeaceCoinCrowdsale.sol');
 var PeaceCoinSavingsWallet = artifacts.require('PeaceCoinSavingsWallet.sol');
-var RefundVault = artifacts.require("RefundVault.sol");
+var RefundVault = artifacts.require('RefundVault.sol');
 
 module.exports = function(deployer, network, accounts) {
   //    return DeployTestCrowdSale(deployer, accounts);
@@ -44,6 +44,7 @@ async function liveDeploy(deployer, accounts) {
   const RATE = new BigNumber(1); // 1: 1eth = 1Token
   const CAP = ether(5);
   const GOAL = ether(3);
+  const presaleInvestment = ether(1);
 
   const heartbeatTimeout = 3153600000000; // 1000 Year
 
@@ -52,27 +53,23 @@ async function liveDeploy(deployer, accounts) {
   let crowdsale;
   let vault;
 
-  await deployer
-    .deploy(PeaceCoinCrowdsaleToken)
-    .then(function() {
-      token = PeaceCoinCrowdsaleToken;
-    });
+  await deployer.deploy(PeaceCoinCrowdsaleToken).then(function() {
+    token = PeaceCoinCrowdsaleToken;
+  });
 
   console.log('token address: ', token.address);
 
   await deployer
     .deploy(PeaceCoinSavingsWallet, heartbeatTimeout)
-    .then(function () {
+    .then(function() {
       wallet = PeaceCoinSavingsWallet;
     });
 
-  console.log("wallet address: ", wallet.address);
+  console.log('wallet address: ', wallet.address);
 
-  await deployer
-    .deploy(RefundVault, wallet.address)
-    .then(function() {
-      vault = RefundVault;
-    });
+  await deployer.deploy(RefundVault, wallet.address).then(function() {
+    vault = RefundVault;
+  });
 
   console.log(vault.address);
 
@@ -85,29 +82,25 @@ async function liveDeploy(deployer, accounts) {
       wallet.address,
       CAP.toNumber(),
       token.address,
-      GOAL.toNumber()
+      GOAL.toNumber(),
+      presaleInvestment
     )
     .then(function() {
       crowdsale = PeaceCoinCrowdsale;
-
-
     });
 
   console.log(crowdsale.address);
 
   // Transfer Ownership from owner address to crowdsale address
-  await deployer
-    .then(function() {
-      token
-        .deployed()
-        .then(instance => instance.transferOwnership(crowdsale.address));
-  }) 
+  await deployer.then(function() {
+    token
+      .deployed()
+      .then(instance => instance.transferOwnership(crowdsale.address));
+  });
 
-  await deployer
-    .then(function () {
-      vault
-        .deployed()
-        .then(instance => instance.transferOwnership(crowdsale.address));
-    }) 
-
+  await deployer.then(function() {
+    vault
+      .deployed()
+      .then(instance => instance.transferOwnership(crowdsale.address));
+  });
 }

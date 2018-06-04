@@ -9,3 +9,5 @@ package-lock.json
 
 secret.txt
 memo.txt
+
+/build.bak
